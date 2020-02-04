@@ -42,10 +42,12 @@ void get_args() { // retrieves args from input and saves to global array
     int i = 0;
     char cwd[512];
     getcwd(cwd, sizeof(cwd));
+    printf(GRN "\ncs360: " RESET);
     if(cwd)
-      printf("\ncs360: %s $ ", cwd);
+      printf(CYN "%s " RESET, cwd);
     else
-      printf("\ncs360: *CWD ERROR* $ ");
+      printf(CYN "*CWD ERROR* " RESET);
+    printf("$ ");
 		fgets(temp, sizeof(temp), stdin);
 		line[strlen(line)-1] = 0;
 		
