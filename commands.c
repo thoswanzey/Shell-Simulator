@@ -10,6 +10,17 @@ void command_exit()
 
 void command_parse() 
 {   
-    if(strcmp(args[0], "exit") == 0)
-        command_exit();
+    int i;
+    for(i = 0; cmds[i]; i++)
+    {
+        if(!strcmp(args[0], cmds[i]))
+        {
+            fptr[i]();
+            i = -1;
+            break;
+        }
+    }
+    
+    if(i != -1)
+        printf("invalid command\n");
 }
