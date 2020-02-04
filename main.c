@@ -1,4 +1,5 @@
 #include "main.h"
+#include "commands.h"
 
 char *args[64];
 
@@ -8,6 +9,7 @@ int main(int argc, char** argv, char **envp)
   while(1)
   {
     get_args(); // get args
+    command_parse();
     memset(args, '\0', sizeof(args)); // clear args
   }
 }
@@ -35,7 +37,7 @@ void get_args() { // retrieves args from input and saves to global array
 		fgets(temp, sizeof(temp), stdin);
 		line[strlen(line)-1] = 0;
 		
-    strcpy(line, "/bin/");
+    strcpy(line, "");
     strcat(line, temp);
 
     char *token = strtok(line, " ");
