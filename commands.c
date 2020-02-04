@@ -1,6 +1,9 @@
 #include "commands.h"
 
-extern *args[64];
+extern char *args[64];
+
+char *cmds[ ] = {"exit", 0};
+int(*fptr[ ])()={ command_exit};
 
 void command_exit() 
 {
@@ -20,7 +23,7 @@ void command_parse()
             break;
         }
     }
-    
+
     if(i != -1)
         printf("invalid command\n");
 }
