@@ -10,6 +10,7 @@ char **env;
 int main(int argc, char** argv, char **envp)
 {
   env = envp;
+  chdir(getenv("HOME"));
   print_path(); // print path
   while(1)
   {
@@ -39,8 +40,12 @@ void print_path() {
 void get_args() { // retrieves args from input and saves to global array
     char temp[128];
     int i = 0;
-
-    printf("\ncs360 $ ");
+    char cwd[512];
+    getcwd(cwd, sizeof(cwd));
+    if(cwd)
+      printf("\ncs360: %s $ ", cwd);
+    else
+      printf("\ncs360: *CWD ERROR* $ ");
 		fgets(temp, sizeof(temp), stdin);
 		line[strlen(line)-1] = 0;
 		

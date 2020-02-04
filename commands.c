@@ -1,18 +1,40 @@
 #include "commands.h"
 
+extern int nargs;
 extern char *args[64];
 extern char line[128];
 extern char *paths[64];
 extern char **env;
 
-char *cmds[ ] = {"exit", 0};
-int(*fptr[ ])()={ command_exit};
+char *cmds[ ] = {"exit", "cd",  0};
+int(*fptr[ ])()={ command_exit, command_cd};
+
+void command_cd()
+{
+    int fail = -1;
+    if(nargs == 2)
+    {
+        fail = chdir(args[1]);
+    }
+    else if(nargs == 1)
+    {
+        fail = chdir(getenv("HOME"));
+    }
+
+    //Will trigger if wrong number of parameters or failed chdir call
+    if(fail)
+    {
+        printf("Invalid Command\n");
+    }
+}
+
 
 void command_exit() 
 {
     printf("Program exit.\n");
     exit(0);
 }
+
 
 void command_parse() 
 {   
@@ -45,7 +67,7 @@ void command_parse()
             }
         }
 
-        //If executible file was foundall tested filepaths
+        //If executible file was found
         if(j == -1)
         {
             int pid;
@@ -74,8 +96,5 @@ void command_parse()
         {
             printf("Invalid Command\n");
         }
-        
-
     }
-    //TODO  recognize invalid command and print to terminal
 }

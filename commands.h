@@ -9,7 +9,8 @@
     #include <wait.h>
 
     /* Declarations */
-    void command_parse();
+    void command_cd();
     void command_exit();
-
+    void command_parse();
+    
 #endif
