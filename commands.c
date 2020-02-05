@@ -7,7 +7,7 @@ extern char *paths[64];
 extern char **env;
 
 char *cmds[ ] = {"exit", "cd",  0};
-int(*fptr[ ])()={ command_exit, command_cd};
+int (*fptr[ ])() = { command_exit, command_cd };
 
 void command_cd()
 {
@@ -34,7 +34,6 @@ void command_exit()
     printf("Program exit.\n");
     exit(0);
 }
-
 
 void command_parse() 
 {   

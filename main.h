@@ -10,7 +10,7 @@
     #include <sys/types.h>
     #include <fcntl.h>
     #include <pwd.h>
-    #include <stddef.h> // NULL
+    #include <stddef.h> 
 
 
     /* Declarations */
