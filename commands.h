@@ -23,7 +23,9 @@
 
 
     /* Declarations */
-    void pipe_handler();
+    int pipe_handler();
+    int redirect_handler();
+    
     void command_cd();
     void command_exit();
     void command_parse();

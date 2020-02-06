@@ -67,13 +67,71 @@ void command_handler()
         else
         {
             //child executes this part
-            pipe_handler();
+            if(!pipe_handler() && !redirect_handler())
+                command_parse(args);
         }
     }
 }
 
 
-void pipe_handler()
+int redirect_handler() // return 1 if redirect is found
+{
+    int fd;
+    char fileRedirect[512]; // filewrite name
+    char *exec_args[64]; // used to filter out redirection
+    
+    
+    /* create a new set of args called exec_args that exclude io redirection */
+    int i = 0;
+    int hasRedirect = 0;
+    while(args[i]) 
+    {
+        if(!strcmp(args[i], ">") || !strcmp(args[i], ">>") || !strcmp(args[i], "<"))
+        {
+            hasRedirect = -1;
+            break;
+        }
+        
+        exec_args[i] = args[i]; // copies args up to > , >>, or <
+
+        i++;
+    }
+    
+    exec_args[i] = NULL; // terminating null pointer for execv
+
+
+    if(hasRedirect < 0) // redirect to file
+    {
+        
+        getcwd(fileRedirect, sizeof(fileRedirect));
+        strcat(fileRedirect, "/");
+        strcat(fileRedirect, args[i+1]);
+
+        if(!strcmp(args[i], ">")) {
+            fd = open(fileRedirect, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+            dup2(fd, 1); // copy stdout fd to file
+        } else if(!strcmp(args[i], ">>")) {
+            fd = open(fileRedirect, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+            dup2(fd, 1); // copy stdout fd to file
+        } else {
+            fd = open(fileRedirect, O_RDONLY);
+            dup2(fd, 0); // copy file to stdin
+        }
+
+        if (fd < 0) 
+            printf("Could not create file: %s\n", args[i+1]);
+
+
+        close(fd);
+        
+        command_parse(exec_args);
+        return 1;
+    }
+    
+    return 0;
+}
+
+int pipe_handler() // return 1 if pipe is found
 {
     int i = 0, isPipe = 0;
     char * head_args[64];
@@ -127,14 +185,11 @@ void pipe_handler()
             command_parse(head_args);
 
         }
-        
-    }
 
-    //if command doesn't have pipe, pass all args to command_parse
-    else
-    {
-        command_parse(args);
+        return 1;
     }
+    
+    return 0;
     
 }
 
@@ -159,61 +214,8 @@ void command_parse(char * _args[])
     //If executible file was found
     if(j == -1)
     {
-        int fd;
-        char fileRedirect[512]; // filewrite name
-        char *exec_args[64]; // used to filter out redirection
-        
-        
-        /* create a new set of args called exec_args that exclude io redirection */
-        int i = 0;
-        j = 0;
-        while(_args[i]) 
-        {
-            if(!strcmp(_args[i], ">") || !strcmp(_args[i], ">>") || !strcmp(_args[i], "<"))
-            {
-                j = -1;
-                break;
-            }
             
-            exec_args[i] = _args[i]; // copies args up to > , >>, or <
-
-            i++;
-        }
-        
-        exec_args[i] = NULL; // terminating null pointer for execv
-
-
-        if(j < 0) // redirect to file
-        {
-            
-            getcwd(fileRedirect, sizeof(fileRedirect));
-            strcat(fileRedirect, "/");
-            strcat(fileRedirect, _args[i+1]);
-
-            if(!strcmp(_args[i], ">")) {
-                fd = open(fileRedirect, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-                dup2(fd, 1); // copy stdout fd to file
-            } else if(!strcmp(_args[i], ">>")) {
-                fd = open(fileRedirect, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
-                dup2(fd, 1); // copy stdout fd to file
-            } else {
-                fd = open(fileRedirect, O_RDONLY);
-                dup2(fd, 0); // copy file to stdin
-            }
-
-            if (fd < 0) 
-                printf("Could not create file: %s\n", _args[i+1]);
-
-
-            close(fd);
-            
-            execve(filepath, exec_args, env);
-            
-        }
-        else
-        {
-            execve(filepath, _args, env);
-        }
+        execve(filepath, _args, env);
         
         //execve should never return since it replaces the calling process
         //if it returns, tell terminal an error occured and exit process

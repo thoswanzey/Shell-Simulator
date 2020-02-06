@@ -1,0 +1,6 @@
+        printf("Invalid Command\n");
+    printf("Program exit.\n");
+            printf("Process %d exited with code %d\n", dead_pid, exitval);
+                printf("Could not create file: %s\n", _args[i+1]);
+        printf("**ERROR**\n");
+        printf("Invalid Command\n");
