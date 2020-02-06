@@ -37,6 +37,7 @@ void command_exit()
 
 void command_parse() 
 {   
+                
     int i;
     for(i = 0; cmds[i]; i++)
     {
@@ -82,10 +83,66 @@ void command_parse()
             else
             {
                 //child Executes this part;
-                execve(filepath, args, env);
+                
+                int fd;
+                char filewrite[512]; // filewrite name
+                char *exec_args[64]; // used to filter out redirection
+                
+                
+                /* create a new set of args called exec_args that exclude io redirection */
+                i = 0;
+                j = 0;
+                while(args[i]) 
+                {
+                    if(!strcmp(args[i], ">") || !strcmp(args[i], ">>") || !strcmp(args[i], "<"))
+                    {
+                        j = -1;
+                        break;
+                    }
+                    
+                    exec_args[i] = args[i]; // copies args up to > or >>
+
+                    i++;
+                }
+                
+                exec_args[i] = NULL; // terminating null pointer for execv
+
+
+                if(j < 0) // redirect to file
+                {
+                    
+                    getcwd(filewrite, sizeof(filewrite));
+                    strcat(filewrite, "/");
+                    strcat(filewrite, args[i+1]);
+
+                    if(!strcmp(args[i], ">")) {
+                        fd = open(filewrite, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+                        dup2(fd, 1); // copy stdout fd to file
+                    } else if(!strcmp(args[i], ">>")) {
+                        fd = open(filewrite, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+                        dup2(fd, 1); // copy stdout fd to file
+                    } else {
+                        fd = open(filewrite, O_RDONLY);
+                        dup2(fd, 0); // copy file to stdin
+                    }
+
+                    if (fd < 0) 
+                        printf("Could not create file: %s\n", args[i+1]);
+
+
+                    close(fd);
+                    
+                    execve(filepath, exec_args, env);
+                    
+                }
+                else
+                {
+                    execve(filepath, args, env);
+                }
+                
                 //execve should never return since it replaces the calling process
                 //if it returns, tell terminal an error occured and exit process
-                printf("**ERROR**");
+                printf("**ERROR**\n");
                 exit(-1);
             }
         }
