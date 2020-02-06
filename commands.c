@@ -62,7 +62,7 @@ void command_handler()
             int dead_pid, exitval;
             //wait for child process to terminate
             dead_pid = wait(&exitval);
-            printf("Process %d exited with code %d\n", dead_pid, exitval);
+            printf(YEL "\nProcess %d exited with code %d\n" RESET, dead_pid, exitval);
         }
         else
         {
