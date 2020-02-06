@@ -125,7 +125,7 @@ void command_parse()
                 i = 0;
                 while(args[i]) 
                 {
-                    if(!strcmp(args[i], ">") || !strcmp(args[i], ">>"))
+                    if(!strcmp(args[i], ">") || !strcmp(args[i], ">>") || !strcmp(args[i], "<"))
                     {
                         j = -1;
                         break;
@@ -136,27 +136,34 @@ void command_parse()
 
                 if(j < 0) // redirect to file
                 {
-
+                    
                     getcwd(filewrite, sizeof(filewrite));
                     strcat(filewrite, "/");
                     strcat(filewrite, args[i+1]);
 
                     if(!strcmp(args[i], ">"))
+                    {
                         fd = open(filewrite, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-                    else
+                        dup2(fd, 1); // copy stdout fd to file
+                    }
+                    else if(!strcmp(args[i], ">>"))
+                    {
                         fd = open(filewrite, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
+                        dup2(fd, 1); // copy stdout fd to file
+                    }
+                    else
+                    {
+                        fd = open(filewrite, O_RDONLY);
+                        dup2(fd, 0); // copy file to stdin
+                    }
 
                     if (fd < 0) 
-                    {
                         printf("Could not create file: %s\n", args[i+1]);
-                    }
-                    else
-                    {
-                        dup2(fd, 1); // copy stdout fd to file
-                        close(fd);
-                        execve(filepath, exec_args, env);
-                    }
-                
+
+
+                    close(fd);
+                    execve(filepath, exec_args, env);
+                    
                 }
                 else
                 {
