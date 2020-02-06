@@ -116,13 +116,14 @@ void command_parse()
             {
                 //child Executes this part;
                 
-                int fd, j;
+                int fd;
                 char filewrite[512]; // filewrite name
                 char *exec_args[64]; // used to filter out redirection
                 
                 
                 /* create a new set of args called exec_args that exclude io redirection */
                 i = 0;
+                j = 0;
                 while(args[i]) 
                 {
                     if(!strcmp(args[i], ">") || !strcmp(args[i], ">>") || !strcmp(args[i], "<"))
