@@ -23,8 +23,10 @@
 
 
     /* Declarations */
+    void pipe_handler();
     void command_cd();
     void command_exit();
     void command_parse();
+    void command_handler();
     
 #endif

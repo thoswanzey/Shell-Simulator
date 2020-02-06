@@ -15,7 +15,7 @@ int main(int argc, char** argv, char **envp)
   while(1)
   {
     get_args();
-    command_parse();
+    command_handler();
     memset(args, '\0', sizeof(args)); // clear args
   }
 }
