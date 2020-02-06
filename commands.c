@@ -130,9 +130,14 @@ void command_parse()
                         j = -1;
                         break;
                     }
+                    
                     exec_args[i] = args[i]; // copies args up to > or >>
+
                     i++;
                 }
+                
+                exec_args[i] = NULL; // terminating null pointer for execv
+
 
                 if(j < 0) // redirect to file
                 {
@@ -141,18 +146,13 @@ void command_parse()
                     strcat(filewrite, "/");
                     strcat(filewrite, args[i+1]);
 
-                    if(!strcmp(args[i], ">"))
-                    {
+                    if(!strcmp(args[i], ">")) {
                         fd = open(filewrite, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
                         dup2(fd, 1); // copy stdout fd to file
-                    }
-                    else if(!strcmp(args[i], ">>"))
-                    {
+                    } else if(!strcmp(args[i], ">>")) {
                         fd = open(filewrite, O_RDWR | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR);
                         dup2(fd, 1); // copy stdout fd to file
-                    }
-                    else
-                    {
+                    } else {
                         fd = open(filewrite, O_RDONLY);
                         dup2(fd, 0); // copy file to stdin
                     }
@@ -162,6 +162,7 @@ void command_parse()
 
 
                     close(fd);
+                    
                     execve(filepath, exec_args, env);
                     
                 }
@@ -172,7 +173,7 @@ void command_parse()
                 
                 //execve should never return since it replaces the calling process
                 //if it returns, tell terminal an error occured and exit process
-                printf("**ERROR**");
+                printf("**ERROR**\n");
                 exit(-1);
             }
         }
