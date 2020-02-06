@@ -35,38 +35,6 @@ void command_exit()
     exit(0);
 }
 
-void handle_redirect(char *filepath)
-{
-    int fd;
-    char filewrite[512]; // filewrite name
-    char *exec_args[64]; // used to filter out redirection
-    
-    for(int i = 0; !strcmp(args[i+1], ">"); i++) // copies args up to >
-        exec_args[i] = args[i];
-    
-    for(int i = 0; args[i+1]; i++)
-    {
-        getcwd(filewrite, sizeof(filewrite));
-        strcat(filewrite, "/");
-        strcat(filewrite, args[i+1]);
-
-        if(!strcmp(args[i], ">"))
-        {
-            fd = open(filewrite, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-
-            if (fd < 0) 
-            {
-                printf("Could not create file: %s\n", args[i+1]);
-                break;
-            }
-
-            dup2(fd, 1); // copy stdout fd to file
-            close(fd);
-            execve(filepath, exec_args, env);
-        }
-    }
-}
-
 void command_parse() 
 {   
                 
